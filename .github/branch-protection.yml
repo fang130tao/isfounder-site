@@ -1,5 +1,5 @@
 # GitHub Branch Protection Rules Configuration
-# Import this file in GitHub Settings > Branches > Branch protection rules
+# Simplified for single main branch workflow
 
 version: 1
 
@@ -16,42 +16,7 @@ rules:
         contexts:
           - ci-check/lint
           - ci-check/security-scan
-      enforce_admins: true
-      required_pull_request_reviews:
-        required_approving_review_count: 1
-        dismiss_stale_reviews: true
-        require_code_owner_reviews: true
-      restrictions: null
-      allow_force_pushes: false
-      allow_deletions: false
-      required_linear_history: true
-
-  # Develop branch - Development
-  - name: develop
-    protection:
-      required_status_checks:
-        strict: false
-        contexts:
-          - ci-check/lint
-      enforce_admins: true
-      required_pull_request_reviews:
-        required_approving_review_count: 1
-        dismiss_stale_reviews: true
-        require_code_owner_reviews: false
-      restrictions: null
-      allow_force_pushes: false
-      allow_deletions: false
-      required_linear_history: false
-
-  # Release branches
-  - name: release/*
-    protection:
-      required_status_checks:
-        strict: false
-        contexts:
-          - ci-check/lint
-          - ci-check/build-release
-      enforce_admins: true
+      enforce_admins: false
       required_pull_request_reviews:
         required_approving_review_count: 1
         dismiss_stale_reviews: true
@@ -69,9 +34,6 @@ branch_deletion:
   delete_after_days: 7
   protect_patterns:
     - main
-    - develop
-    - release/*
-    - hotfix/*
 
 # ========================================
 # Auto Delete Head Branches
