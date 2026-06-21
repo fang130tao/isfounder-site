@@ -1,0 +1,38 @@
+# Public Directory
+
+This directory contains static assets for the website.
+
+## Usage
+
+Place static files here that should be served as-is:
+
+- Images (`.png`, `.jpg`, `.svg`, `.gif`, etc.)
+- Fonts (`.woff`, `.woff2`, `.ttf`, etc.)
+- Documents (`.pdf`, `.doc`, etc.)
+- Favicon (`favicon.ico`)
+- Static HTML files
+
+### Examples
+
+```bash
+# Images
+/public/images/logo.png
+/public/images/hero-bg.jpg
+
+# Favicon
+/public/favicon.ico
+
+# Fonts
+/public/fonts/custom-font.woff2
+```
+
+## Next.js Behavior
+
+Next.js automatically serves files in the `public` folder. For example:
+
+- File: `public/images/hero.png` → URL: `/images/hero.png`
+- File: `public/favicon.ico` → URL: `/favicon.ico`
+
+## Build Output
+
+During the Docker build process, the `public` directory is copied to the production image to ensure all static assets are available.

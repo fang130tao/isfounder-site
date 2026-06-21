@@ -55,7 +55,7 @@ COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
 # Disable Next.js telemetry
-ENV NEXT_TELEMETRY_DISABLED 1
+ENV NEXT_TELEMETRY_DISABLED=1
 
 # Build application
 RUN npm run build
@@ -80,7 +80,8 @@ RUN addgroup --system --gid 1001 nodejs && \
 RUN mkdir .next && chown nextjs:nodejs .next
 
 # Copy built application
-COPY --from=builder --chown=nextjs:nodejs /app/public ./public
+RUN mkdir -p ./public
+COPY --from=builder --chown=nextjs:nodejs /app/public ./public/
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
