@@ -1,0 +1,156 @@
+# Harbor 配置文件
+# 适用于阿里云服务器 8.156.82.221
+# 版本: Harbor v2.10.0
+
+# ==========================================
+# 基础配置
+# ==========================================
+
+# Harbor 主机名（必须修改）
+hostname: 8.156.82.221
+
+# HTTP 配置
+http:
+  # HTTP 端口（Web UI 和 API）
+  port: 80
+
+# HTTPS 配置（可选，生产环境推荐）
+# 注意：如果使用 HTTPS，必须提供证书
+# https:
+#   # HTTPS 端口
+#   port: 443
+#   # SSL 证书路径
+#   certificate: /your/cert/path/registry.crt
+#   private_key: /your/cert/path/registry.key
+
+# ==========================================
+# 管理员配置
+# ==========================================
+
+# 管理员初始密码（必须修改！）
+# 默认账号: admin
+# 默认密码: Harbor12345
+# ⚠️ 生产环境必须修改为强密码！
+harbor_admin_password: Harbor12345
+
+# ==========================================
+# 数据存储配置
+# ==========================================
+
+# Harbor 数据存储路径
+# 建议使用独立的数据磁盘
+data_volume: /data/harbor
+
+# ==========================================
+# 数据库配置
+# ==========================================
+
+# Harbor 内部数据库配置
+database:
+  # 数据库密码（建议修改）
+  password: HarborDB12345
+  # 最大空闲连接数
+  max_idle_conns: 50
+  # 最大打开连接数
+  max_open_conns: 1000
+
+# ==========================================
+# Redis 配置
+# ==========================================
+
+# Harbor 内部 Redis 配置
+redis:
+  # Redis 密码（建议修改）
+  password: HarborRedis12345
+  # 最大空闲连接数
+  max_idle_conns: 50
+  # 最大打开连接数
+  max_open_conns: 1000
+
+# ==========================================
+# 日志配置
+# ==========================================
+
+# Harbor 日志配置
+log:
+  # 日志级别: debug, info, warning, error, fatal
+  level: info
+  # 日志轮转数量
+  rotate_count: 50
+  # 日志轮转大小
+  rotate_size: 200M
+  # 日志存储路径
+  location: /var/log/harbor
+
+# ==========================================
+# 其他配置（可选）
+# ==========================================
+
+# 代理配置（如果需要）
+# proxy:
+#   http_proxy: http://proxy.example.com:8080
+#   https_proxy: https://proxy.example.com:8443
+#   no_proxy: localhost,127.0.0.1,.local
+
+# 邮件配置（用于通知）
+# email:
+#   server: smtp.example.com
+#   port: 25
+#   username: user@example.com
+#   password: password
+#   from: harbor@example.com
+#   ssl: false
+
+# ==========================================
+# 注意事项
+# ==========================================
+
+# 1. hostname 必须设置为服务器公网 IP 或域名
+#    不能使用 localhost 或 127.0.0.1
+
+# 2. harbor_admin_password 必须修改为强密码
+#    生产环境建议使用至少 12 位密码
+
+# 3. data_volume 建议使用独立磁盘
+#    确保有足够空间（建议 20GB 以上）
+
+# 4. HTTPS 配置（可选）
+#    生产环境强烈推荐启用 HTTPS
+#    可以使用自签名证书或 Let's Encrypt
+
+# 5. 防火墙配置
+#    确保开放以下端口：
+#    - 80 (HTTP)
+#    - 443 (HTTPS，如果启用)
+
+# 6. Docker 配置
+#    如果使用 HTTP，需要在 Docker daemon.json 中添加：
+#    {
+#      "insecure-registries": ["8.156.82.221"]
+#    }
+
+# ==========================================
+# 配置完成后
+# ==========================================
+
+# 1. 运行 prepare 脚本：
+#    ./prepare
+
+# 2. 运行安装脚本：
+#    ./install.sh
+
+# 3. 启动 Harbor：
+#    docker-compose up -d
+
+# 4. 查看状态：
+#    docker-compose ps
+
+# 5. 访问 Web UI：
+#    http://8.156.82.221
+
+# ==========================================
+# 参考文档
+# ==========================================
+
+# Harbor 官方文档: https://goharbor.io/docs/
+# 配置指南: https://goharbor.io/docs/2.10.0/install-config/configure-yml-file/
