@@ -1,45 +1,86 @@
-# 使用 Node.js 20 Alpine 作为基础镜像
+# ========================================
+# Multi-stage Dockerfile for Next.js App
+# Supports: production, staging, dev, builder
+# ========================================
+
+# ========================================
+# Stage 1: Base image with dependencies
+# ========================================
 FROM node:20-alpine AS base
 
-# 安装依赖阶段
-FROM base AS deps
+# Install libc6-compat for native binaries
 RUN apk add --no-cache libc6-compat
+
 WORKDIR /app
 
-# 复制 package.json 和 package-lock.json
+# ========================================
+# Stage 2: Development environment
+# ========================================
+FROM base AS dev
+
+# Install development dependencies
 COPY package.json package-lock.json* ./
 RUN npm ci
 
-# 构建阶段
-FROM base AS builder
-WORKDIR /app
-COPY --from=deps /app/node_modules ./node_modules
+# Copy source code
 COPY . .
 
-# 设置环境变量
-ENV NEXT_TELEMETRY_DISABLED 1
+# Expose port
+EXPOSE 3000
 
-# 构建应用
-RUN npm run build
+# Start development server
+CMD ["npm", "run", "dev"]
 
-# 运行阶段
-FROM base AS runner
+# ========================================
+# Stage 3: Dependencies installation
+# ========================================
+FROM base AS deps
+
 WORKDIR /app
 
-ENV NODE_ENV production
+COPY package.json package-lock.json* ./
+RUN npm ci --only=production && npm cache clean --force
+
+# ========================================
+# Stage 4: Builder for staging/release
+# ========================================
+FROM base AS builder
+
+WORKDIR /app
+
+# Copy dependencies
+COPY --from=deps /app/node_modules ./node_modules
+
+# Copy source code
+COPY . .
+
+# Disable Next.js telemetry
 ENV NEXT_TELEMETRY_DISABLED 1
 
-RUN addgroup --system --gid 1001 nodejs
-RUN adduser --system --uid 1001 nextjs
+# Build application
+RUN npm run build
 
-# 复制构建产物
-COPY --from=builder /app/public ./public
+# ========================================
+# Stage 5: Production runner
+# ========================================
+FROM base AS runner
 
-# 设置正确的权限
-RUN mkdir .next
-RUN chown nextjs:nodejs .next
+WORKDIR /app
 
-# 自动利用输出跟踪来减少镜像大小
+ENV NODE_ENV=production \
+    NEXT_TELEMETRY_DISABLED=1 \
+    PORT=3000 \
+    HOSTNAME="0.0.0.0"
+
+# Create non-root user for security
+RUN addgroup --system --gid 1001 nodejs && \
+    adduser --system --uid 1001 nextjs
+
+# Set ownership
+RUN mkdir .next && chown nextjs:nodejs .next
+
+# Copy built application
+COPY --from=builder --chown=nextjs:nodejs /app/public ./public
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
@@ -47,7 +88,10 @@ USER nextjs
 
 EXPOSE 3000
 
-ENV PORT 3000
-ENV HOSTNAME "0.0.0.0"
-
 CMD ["node", "server.js"]
+
+# ========================================
+# Health check for production
+# ========================================
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+  CMD wget --no-verbose --tries=1 --spider http://localhost:3000/health || exit 1

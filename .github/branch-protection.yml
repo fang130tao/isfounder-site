@@ -1,0 +1,81 @@
+# GitHub Branch Protection Rules Configuration
+# Import this file in GitHub Settings > Branches > Branch protection rules
+
+version: 1
+
+# ========================================
+# Protected Branch Rules
+# ========================================
+
+rules:
+  # Main branch - Production
+  - name: main
+    protection:
+      required_status_checks:
+        strict: true
+        contexts:
+          - ci-check/lint
+          - ci-check/security-scan
+      enforce_admins: true
+      required_pull_request_reviews:
+        required_approving_review_count: 2
+        dismiss_stale_reviews: true
+        require_code_owner_reviews: true
+      restrictions: null
+      allow_force_pushes: false
+      allow_deletions: false
+      required_linear_history: true
+
+  # Develop branch - Development
+  - name: develop
+    protection:
+      required_status_checks:
+        strict: false
+        contexts:
+          - ci-check/lint
+      enforce_admins: true
+      required_pull_request_reviews:
+        required_approving_review_count: 1
+        dismiss_stale_reviews: true
+        require_code_owner_reviews: false
+      restrictions: null
+      allow_force_pushes: false
+      allow_deletions: false
+      required_linear_history: false
+
+  # Release branches
+  - name: release/*
+    protection:
+      required_status_checks:
+        strict: false
+        contexts:
+          - ci-check/lint
+          - ci-check/build-release
+      enforce_admins: true
+      required_pull_request_reviews:
+        required_approving_review_count: 1
+        dismiss_stale_reviews: true
+        require_code_owner_reviews: false
+      restrictions: null
+      allow_force_pushes: false
+      allow_deletions: false
+      required_linear_history: false
+
+# ========================================
+# Branch Deletion Policy
+# ========================================
+branch_deletion:
+  enabled: true
+  delete_after_days: 7
+  protect_patterns:
+    - main
+    - develop
+    - release/*
+    - hotfix/*
+
+# ========================================
+# Auto Delete Head Branches
+# ========================================
+auto_delete:
+  enabled: true
+  after_days: 7

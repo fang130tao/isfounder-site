@@ -1,27 +1,63 @@
 version: '3.8'
 
 services:
-  web:
+  # ========================================
+  # Production Environment
+  # ========================================
+  production:
     build:
       context: .
       dockerfile: Dockerfile
+      target: runner
     ports:
       - "3000:3000"
     environment:
       - NODE_ENV=production
+      - NEXT_TELEMETRY_DISABLED=1
     restart: unless-stopped
-    container_name: isfounder-site
+    container_name: artistry-site-prod
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
 
-  # 开发环境配置
-  dev:
-    image: node:20-alpine
-    working_dir: /app
+  # ========================================
+  # Staging Environment
+  # ========================================
+  staging:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: builder
+    ports:
+      - "3001:3000"
+    environment:
+      - NODE_ENV=staging
+      - NEXT_TELEMETRY_DISABLED=1
+    restart: unless-stopped
+    container_name: artistry-site-staging
+
+  # ========================================
+  # Development Environment
+  # ========================================
+  development:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: dev
+    ports:
+      - "3002:3000"
     volumes:
       - .:/app
       - /app/node_modules
-    ports:
-      - "3000:3000"
-    command: sh -c "npm install && npm run dev"
+      - /app/.next
     environment:
       - NODE_ENV=development
-    container_name: isfounder-site-dev
+    restart: unless-stopped
+    container_name: artistry-site-dev
+
+networks:
+  default:
+    name: artistry-network
