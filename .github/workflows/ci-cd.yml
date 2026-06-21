@@ -15,7 +15,7 @@ on:
       - main
 
 env:
-  NODE_VERSION: '20'
+  NODE_VERSION: '22'
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
 
@@ -73,7 +73,7 @@ jobs:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
             type=raw,value=dev
-            type=sha,prefix=
+            type=sha,format=raw
 
       - name: Build and push development image
         uses: docker/build-push-action@v5
@@ -159,7 +159,7 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
-            type=sha,prefix=,suffix=,format=raw
+            type=sha,format=raw
             type=raw,value=latest
             type=semver,pattern={{version}}
 
