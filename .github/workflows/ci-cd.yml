@@ -16,7 +16,7 @@ on:
 
 env:
   NODE_VERSION: '22'
-  REGISTRY: harbor.example.com
+  REGISTRY: harbor.isfounder.com
   IMAGE_NAME: isfounder-site/isfounder-site
 
 jobs:
